@@ -1,3 +1,4 @@
+#define _DRAW_NO_XFORM_MAIN
 #include "draw.h"
 #include <QPainter>
 #include <QApplication>
@@ -9,6 +10,8 @@
 #include <iostream>
 
 #include <QWidget>
+
+namespace draw {
 
 class WindowWidget : public QWidget
 {
@@ -107,9 +110,9 @@ int start_stuff() {
 }
 int garbage = start_stuff();
 
-[[noreturn]] void done() {
+[[noreturn]] void done(int r) {
    std_draw_thread.join();
-   quick_exit(0);
+   quick_exit(r);
 }
 
 void repaint();
@@ -138,4 +141,6 @@ void APIWidget::sendEllipsePub(int x, int y, int width, int height)
 { emit sendEllipse(x, y, width, height); }
 void APIWidget::sendClearPub() 
 { emit sendClear(); }
+
+}
 
