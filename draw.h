@@ -4,7 +4,11 @@
 // user-facing API
 
 namespace draw {
+   void ellipse(double, double, double, double);
    void circle(double, double, double);
+   void setxscale(double, double);
+   void setyscale(double, double);
+   void setscale(double, double);
    void show(int);
    void clear();
 }
@@ -29,9 +33,9 @@ namespace draw {
 #define _DRAW_NO_XFORM_MAIN
 
 // warning: here be dragons
-namespace draw {void done(int);}
+namespace draw {void _done(int);}
 int _main(int, char**); // user's main will be transformed to this
-int main(int x, char** y) {int r = _main(x, y); draw::done(r); return r;}
+int main(int x, char** y) {int r = _main(x, y); draw::_done(r); return r;}
 
 // transform main() or main(int, char**) to _main(int, char**)
 #define main(...) vamain(__VA_ARGS__)

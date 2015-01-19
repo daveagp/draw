@@ -5,7 +5,7 @@ clean:
 
 # compile lib with g++ since clang++ has issues with std::{thread,chrono}
 draw.o:	
-	moc-qt4 draw.cpp | g++ -g -c -std=c++11 -I/usr/include/qt4/QtGui -I/usr/include/qt4 -x c++ - -include draw.cpp -o draw.o
+	moc-qt4 draw.cpp | g++ -g -c -std=c++11 -fmax-errors=1 -I/usr/include/qt4/QtGui -I/usr/include/qt4 -x c++ - -include draw.cpp -o draw.o
 
 example: draw.o
 	g++ -g example.cpp draw.o -lQtGui -lQtCore -o example
