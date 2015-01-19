@@ -1,5 +1,5 @@
 #include "draw.h"
-#include "drawmoc.h"
+#include "draw_qo.h"
 #include <QPainter>
 #include <QApplication>
 #include <QPixmap>
