@@ -9,7 +9,7 @@ lib:
 	g++ -g -c -std=c++11 -I/usr/include/qt4/QtGui -I/usr/include/qt4 -include drawmoc.cpp draw.cpp -o draw.o
 
 example: lib
-	g++ example.cpp draw.o -lQtGui -o example
+	g++ example.cpp draw.o -lQtGui -lQtCore -o example
 
 # prepare a zip that people not using git can use
 zip:
