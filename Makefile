@@ -13,4 +13,4 @@ example: draw.o
 # prepare a zip that people not using git can use
 zip:
 	rm -f draw.zip
-	zip draw.zip draw.cpp draw.h draw_qo.h Makefile example.cpp
+	zip draw.zip draw.cpp draw.h Makefile example.cpp
