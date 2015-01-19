@@ -1,4 +1,4 @@
-all: demo
+all: example
 
 clean:
 	rm -f drawmoc.cpp draw.o example
