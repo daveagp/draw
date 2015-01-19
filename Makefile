@@ -10,3 +10,8 @@ lib:
 
 example: lib
 	g++ example.cpp draw.o -lQtGui -o example
+
+# prepare a zip that people not using git can use
+zip:
+	rm -f draw.zip
+	zip draw.zip draw.cpp draw.h drawmoc.h Makefile example.cpp
