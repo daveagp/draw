@@ -9,7 +9,7 @@ int main()
    double vy = 0.02;
    double radius = 0.05;
 
-   draw::setscale(-1, 1);
+   draw::setrange(-1, 1);
    while (true) {
       //draw::clear(); // try commenting this out
       if (fabs(px+vx) > 1-radius)

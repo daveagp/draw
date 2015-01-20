@@ -13,7 +13,7 @@ int main()
    double radius = 0.05; // depends on image size and scale
 
    draw::play("media/2001.mid");
-   draw::setscale(-1, 1);
+   draw::setrange(-1, 1);
    while (true) {
       draw::image("media/starfield.jpg", 0, 0);
       if (fabs(px+vx) > 1-radius) {
