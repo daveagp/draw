@@ -3,8 +3,9 @@
 #  sudo apt-get install phonon-backend-gstreamer libphonon-dev
 # 2. run 'make fresh audio=y' and use audio=y every time you run make
 # 3. see if ./earth works
-# 4. you might need to install more packages to play .mid files:
-#  sudo apt-get install ubuntu-restricted-extras vlc-plugin-fluidsynth libgstreamer-plugins-bad1.0
+# 4. if you get error about .mid files, more packages needed. I used:
+#  sudo apt-get install ubuntu-restricted-extras vlc-plugin-fluidsynth
+#    (use tab and space to navigate the weird dialogs)
 
 EXAMPLES = example bounce earth polygon sierpinski htree nestedcircles
 all: draw.o $(EXAMPLES)
