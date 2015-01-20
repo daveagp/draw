@@ -6,9 +6,15 @@
 namespace draw {
    void ellipse(double, double, double, double);
    void circle(double, double, double);
+   void filled_circle(double, double, double);
+   void filled_ellipse(double, double, double);
+   void setcolor(int, int, int);
+   void settransparency(double);
    void setxscale(double, double);
    void setyscale(double, double);
    void setscale(double, double);
+   void image(char* filename, double, double);
+   void play(char* filename);
    void show(int);
    void clear();
 }
@@ -22,11 +28,11 @@ namespace draw {
 
 /* implementation details follow, not really intended for the user.
 
-   the remainder of the file ensures that done() is automatically called
+   the remainder of the file ensures that _done() is automatically called
    at the end of the user's main(). 
    
    to disable it, add #define _DRAW_NO_XFORM_MAIN to your own code before 
-   including this file. 
+   including this file. Call draw::_done() at end to wait for window close.
 */
 
 #ifndef _DRAW_NO_XFORM_MAIN
