@@ -1,7 +1,8 @@
-# to add music:
-# - run 'make fresh music=y'
-# - you might need to install some packages. on my machine this worked:
-#      sudo apt-get install libphonon4 libphonon-dev vlc-plugin-fluidsynth
+# to add audio:
+# 1. you need to install some packages. on my machine this worked:
+#  sudo apt-get install phonon-backend-gstreamer libphonon4 libphonon-dev
+# 2. run 'make fresh audio=y' and use audio=y every time you run make
+# 3. you might need to install more packages to play .mid files
 
 EXAMPLES = example bounce earth polygon sierpinski htree nestedcircles
 all: draw.o $(EXAMPLES)
@@ -15,7 +16,7 @@ WARN = -Wall -Wno-return-type -Wno-write-strings
 INCL = -I/usr/include/qt4/QtGui -I/usr/include/qt4
 OFLAGS = $(INCL) $(WARN) -g -Wall -std=c++11 -fmax-errors=1
 FLAGS = $(WARN) -g -lQtGui -lQtCore
-ifdef music
+ifdef audio
 INCL += -I/usr/include/phonon
 OFLAGS += -DDRAW_UNMUTE
 FLAGS += -lphonon
@@ -31,4 +32,4 @@ $(EXAMPLES): %: draw.o %.cpp
 # prepare a zip that people not using git can use
 zip:
 	rm -f draw.zip
-	zip -r draw.zip *.cpp draw.h Makefile media
+	zip -r draw.zip *.cpp draw.h Makefile media README
