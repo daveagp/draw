@@ -1,3 +1,8 @@
+# to add music:
+# - run 'make fresh music=y'
+# - you might need to install some packages. on my machine this worked:
+#      sudo apt-get install libphonon4 libphonon-dev vlc-plugin-fluidsynth
+
 all: draw.o example bounce earth
 
 clean:
@@ -5,17 +10,17 @@ clean:
 	
 fresh: clean all
 
-# to add music:
-# - delete or comment out -DDRAW_MUTE
-# - add -lphonon to FLAGS
-# - sudo apt-get install libphonon4 libphonon-dev vlc-plugin-fluidsynth
-MUTE = -DDRAW_MUTE
 WARN = -Wall -Wno-return-type -Wno-write-strings
-INCL = -I/usr/include/qt4/QtGui -I/usr/include/qt4 -I/usr/include/phonon
-OFLAGS = $(INCL) $(WARN) -g -Wall -std=c++11 -fmax-errors=1 $(MUTE)
+INCL = -I/usr/include/qt4/QtGui -I/usr/include/qt4
+OFLAGS = $(INCL) $(WARN) -g -Wall -std=c++11 -fmax-errors=1
 FLAGS = $(WARN) -g -lQtGui -lQtCore
+ifdef music
+INCL += -I/usr/include/phonon
+OFLAGS += -DDRAW_UNMUTE
+FLAGS += -lphonon
+endif
 
-# compile lib with g++ since clang++ has issues with std::{thread,chrono}
+# I had to compile lib with g++ since clang++ has issues with thread,chrono
 draw.o: draw.cpp
 	moc-qt4 draw.cpp | g++ $(OFLAGS) -c -x c++ - -include draw.cpp -o draw.o
 	

@@ -8,7 +8,7 @@
 #include <atomic>
 #include <chrono>
 #include <iostream>
-#ifndef DRAW_MUTE
+#ifdef DRAW_UNMUTE
 #include <phonon/phonon>
 #endif
 
@@ -249,7 +249,7 @@ void ReceiveWidget::r_image(QString filename, double x, double y) {
 }
 
 void ReceiveWidget::r_play(QString filename) {
-#ifndef DRAW_MUTE
+#ifdef DRAW_UNMUTE
    freopen("/dev/null", "w", stderr); // hide phonon's many status messages
 
    using namespace Phonon;
