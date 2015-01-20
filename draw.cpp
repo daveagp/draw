@@ -8,7 +8,9 @@
 #include <atomic>
 #include <chrono>
 #include <iostream>
+#ifndef DRAW_MUTE
 #include <phonon/phonon>
+#endif
 
 using std::this_thread::yield; using std::cout; using std::endl;
 
@@ -247,6 +249,7 @@ void ReceiveWidget::r_image(QString filename, double x, double y) {
 }
 
 void ReceiveWidget::r_play(QString filename) {
+#ifndef DRAW_MUTE
    freopen("/dev/null", "w", stderr); // hide phonon's many status messages
 
    using namespace Phonon;
@@ -257,6 +260,7 @@ void ReceiveWidget::r_play(QString filename) {
 /*   cout << QSound::isAvailable() << endl;
    QSound sound(filename);
    sound.play();*/
+#endif
    pending--;
 }
 
