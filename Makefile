@@ -1,8 +1,10 @@
 # to add audio:
 # 1. you need to install some packages. on my machine this worked:
-#  sudo apt-get install phonon-backend-gstreamer libphonon4 libphonon-dev
+#  sudo apt-get install phonon-backend-gstreamer libphonon-dev
 # 2. run 'make fresh audio=y' and use audio=y every time you run make
-# 3. you might need to install more packages to play .mid files
+# 3. see if ./earth works
+# 4. you might need to install more packages to play .mid files:
+#  sudo apt-get install ubuntu-restricted-extras vlc-plugin-fluidsynth libgstreamer-plugins-bad1.0
 
 EXAMPLES = example bounce earth polygon sierpinski htree nestedcircles
 all: draw.o $(EXAMPLES)
