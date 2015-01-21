@@ -39,7 +39,7 @@ namespace draw {
    void show(int milliseconds);
 // misc
    void clear(); // fill with white
-   int save(char filename[]); // save image to file. return 0 ok, 1 error
+   bool save(char filename[]); // save image to file. true = ok, false = error
    void play(char filename[]); // play a sound file
 
    // some pre-defined colors

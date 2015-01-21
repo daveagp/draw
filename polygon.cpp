@@ -1,5 +1,4 @@
 #include "draw.h"
-#include <cstdlib>
 
 int main()
 {

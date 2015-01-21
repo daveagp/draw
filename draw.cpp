@@ -211,9 +211,9 @@ void text(char* filename, double x, double y)
 { send()->text(QString(filename), x, y); }
 void play(char* filename)
 { send()->play(filename); }
-int save(char* filename) // synchronous, wait for result
+bool save(char* filename) // synchronous, wait for result
 { send()->save(filename); while (save_result == -1) yield();
-  int result = save_result; save_result = -1; return result; }
+  bool result = (save_result==1); save_result = -1; return result; }
 void showframe() 
 { send()->showframe(); }
 void clear() 
@@ -443,7 +443,7 @@ void ReceiveWidget::r_image(QString filename, double x, double y) {
 }
 
 void ReceiveWidget::r_save(QString filename) {
-   save_result = pm->save(filename) ? 0 : 1;
+   save_result = pm->save(filename) ? 1 : 0;
    pending--;
 }
 
