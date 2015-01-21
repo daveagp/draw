@@ -8,10 +8,13 @@
 #    (use tab and space to navigate the weird dialogs)
 
 EXAMPLES = example bounce earth polygon sierpinski htree nestedcircles
+CXX = g++ # compile lib with g++; clang++ has issues with thread, chrono
+MOCQT4 = moc-qt4
+
 all: draw.o $(EXAMPLES)
 
 clean:
-	rm -f draw.o polygon.png $(EXAMPLES)
+	rm -f draw.o polygon.png bull $(EXAMPLES)
 	
 fresh: clean all
 
@@ -25,13 +28,12 @@ OFLAGS += -DDRAW_UNMUTE
 FLAGS += -lphonon
 endif
 
-# have to compile lib with g++ since clang++ has issues with thread,chrono
 draw.o: draw.cpp draw.h
-	moc-qt4 draw.cpp | g++ $(OFLAGS) -c -x c++ - -include draw.cpp -o draw.o
-
-$(EXAMPLES): %: draw.o %.cpp
-	g++ $@.cpp draw.o $(FLAGS) -o $@
-
+	$(MOCQT4) draw.cpp | $(CXX) $(OFLAGS) -c -x c++ - -include draw.cpp -o draw.o
+	
+%: %.cpp draw.o draw.h
+	$(CXX) $@.cpp draw.o $(FLAGS) -o $@
+	
 # prepare a zip that people not using git can use
 zip:
 	rm -f draw.zip
