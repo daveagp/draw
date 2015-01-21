@@ -3,12 +3,10 @@ It requires that you have Qt4 installed, since that is its backend.
 
 Once downloaded, run "make draw.o" to create the library. 
 Then, use it with draw.h to create drawing programs. There are several
-examples included in this repository.
+examples included in this repository ("make all" or "make bull" etc).
 
-See draw.h for an API listing & an explanation of what each function does.
-
-There is experimental audio support. To see how to enable it, read 
-the Makefile.
+For documentation, visit
+http://bits.usc.edu/cs103/draw/
 
 This library is inspired by StdDraw.java by Bob Sedgewick & Kevin Wayne:
 http://introcs.cs.princeton.edu/java/15inout/
