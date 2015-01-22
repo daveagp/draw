@@ -77,8 +77,8 @@ namespace draw {
 
 /* implementation details follow, not really intended for the user.
 
-   the remainder of the file ensures that _done() is automatically called
-   at the end of the user's main(). 
+   the remainder of the file ensures that the window stays open after
+   the end of the user's main(). 
    
    to disable it, add #define _DRAW_NO_XFORM_MAIN to your own code before 
    including this file. Call draw::_done() at end to wait for window close.
