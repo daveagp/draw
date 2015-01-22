@@ -19,7 +19,7 @@ int main()
       px += vx;
       py += vy;
       draw::settransparency(.45);
-      draw::setcolor(127*(1+px), 127*(1+py), 63*(2-px-py));
+      draw::setcolor((int)(127*(1+px)), (int)(127*(1+py)), (int)(63*(2-px-py)));
       draw::filled_circle(px, py, radius);
       draw::setcolor(0, 0, 0);
       draw::circle(px, py, radius);

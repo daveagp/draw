@@ -1,13 +1,11 @@
-#define _DRAW_NO_XFORM_MAIN
+#define _DRAW_NO_XFORM_MAIN // don't want that when compiling draw.cpp
 #include "draw.h"
 #include <QPainter>
 #include <QApplication>
 #include <QPixmap>
 #include <QWidget>
-#include <thread>
-#include <atomic>
-#include <chrono>
-#include <ctime>
+#include <QThread>
+#include <time.h>
 #include <iostream>
 #ifdef DRAW_UNMUTE
 #include <phonon/phonon>
@@ -16,21 +14,17 @@
 namespace draw {
 
 using std::cout; using std::endl; using std::cerr;
-using std::this_thread::yield;
-using std::chrono::high_resolution_clock;
 
 class SendWidget; class ReceiveWidget; // forward decls
 
 const int MAX_QUEUE_SIZE = 100;
-
-std::atomic<SendWidget*> sendwidget; // singleton
-std::atomic<ReceiveWidget*> receivewidget; // singleton
-std::atomic<bool> ready(false); // is initialization complete?
-std::atomic<int> save_result(-1); // 0 ok, 1 error
+QAtomicPointer<SendWidget> sendwidget; // singleton
+QAtomicPointer<ReceiveWidget> receivewidget; // singleton
+QAtomicInt retcode(0); // return code from main
+QAtomicInt save_result(-1); // 0 ok, 1 error
 
 // used only by user thread
-std::thread gui_thread; // used to spawn and join gui thread
-high_resolution_clock::time_point next_frame_mintime = high_resolution_clock::now();
+timespec next_frame_mintime;
 int badframes = 0;
 int numframes = 0;
 
@@ -46,7 +40,7 @@ class ReceiveWidget : public QWidget
       int width, height;
       int r, g, b, a;
       double penwidth;
-      double fontsize;
+      int fontsize;
       bool y_increases_up;
       bool animation_mode;
  
@@ -69,7 +63,7 @@ class ReceiveWidget : public QWidget
       void r_polygon(QList<double>, QList<double>);
       void r_filled_polygon(QList<double>, QList<double>);
       void r_setcolor(int, int, int);
-      void r_setfontsize(double);
+      void r_setfontsize(int);
       void r_setpenwidth(double);
       void r_settransparency(double);
       void r_setxrange(double, double);
@@ -96,7 +90,7 @@ class SendWidget : public QObject
       void s_settransparency(double);
       void s_setcolor(int, int, int);
       void s_setpenwidth(double);
-      void s_setfontsize(double);
+      void s_setfontsize(int);
       void s_setxrange(double, double);
       void s_setyrange(double, double);
       void s_image(QString, double, double);
@@ -123,7 +117,7 @@ class SendWidget : public QObject
       { emit s_setcolor(r, g, b); }
       void settransparency(double t)
       { emit s_settransparency(t); }
-      void setfontsize(double w)
+      void setfontsize(int w)
       { emit s_setfontsize(w); }
       void setpenwidth(double w)
       { emit s_setpenwidth(w); }
@@ -149,8 +143,9 @@ class SendWidget : public QObject
 
 SendWidget* send() {
    // a giant queue may crash your VM. prevent that!
-   while ((*receivewidget).pending > MAX_QUEUE_SIZE) yield();
-   yield();
+   while ((*receivewidget).pending > MAX_QUEUE_SIZE) 
+      QThread::yieldCurrentThread();
+   QThread::yieldCurrentThread();
    (*receivewidget).pending++;
    return sendwidget;
 }
@@ -187,7 +182,7 @@ void filled_rectangle(double x0, double y0, double x1, double y1)
 
 void setpenwidth(double w) 
 { send()->setpenwidth(w); }
-void setfontsize(double w) 
+void setfontsize(int w) 
 { send()->setfontsize(w); }
 void setcolor(int r, int g, int b) 
 { send()->setcolor(r, g, b); }
@@ -212,22 +207,36 @@ void text(char* filename, double x, double y)
 void play(char* filename)
 { send()->play(filename); }
 bool save(char* filename) // synchronous, wait for result
-{ send()->save(filename); while (save_result == -1) yield();
+{ send()->save(filename); while (save_result == -1) QThread::yieldCurrentThread();
   bool result = (save_result==1); save_result = -1; return result; }
 void showframe() 
 { send()->showframe(); }
 void clear() 
 { send()->clear(); }
+
+bool now_past_next_frame_mintime() {
+   timespec now;
+   clock_gettime(CLOCK_MONOTONIC, &now);
+   return now.tv_sec > next_frame_mintime.tv_sec ||
+   (now.tv_sec == next_frame_mintime.tv_sec &&
+   now.tv_nsec >= next_frame_mintime.tv_nsec);
+}
+
 void show(int ms)
-{ if (numframes > 0 && next_frame_mintime <= high_resolution_clock::now())
+{ if (numframes > 0 && now_past_next_frame_mintime())
      badframes++;
   numframes++;
   if ((numframes % 200 == 0) && (badframes > numframes / 2)) 
-     cerr << "Warning! Your system is not able to satisfy your show() calls."
+     cerr << "Warning! Can't show() that fast. Try increasing ms to show."
       << endl << badframes << " bad frames out of " << numframes << endl;
-  while (next_frame_mintime > high_resolution_clock::now()) yield();
+  while (!now_past_next_frame_mintime())
+      QThread::yieldCurrentThread();
   
-  next_frame_mintime = high_resolution_clock::now() + std::chrono::milliseconds(ms);
+  clock_gettime(CLOCK_MONOTONIC, &next_frame_mintime);
+  next_frame_mintime.tv_sec += ms / 1000;
+  next_frame_mintime.tv_nsec += (ms % 1000) * 1000000; // add nanoseconds
+  next_frame_mintime.tv_sec += next_frame_mintime.tv_nsec / 1000000000;
+  next_frame_mintime.tv_nsec %= 1000000000;
   showframe(); }
 
 ReceiveWidget::ReceiveWidget(QWidget *parent) : QWidget(parent) { 
@@ -262,8 +271,8 @@ ReceiveWidget::ReceiveWidget(QWidget *parent) : QWidget(parent) {
            this, SLOT(r_polygon(QList<double>,QList<double>)));
    connect(sendwidget, SIGNAL(s_filled_polygon(QList<double>,QList<double>)), 
            this, SLOT(r_filled_polygon(QList<double>,QList<double>)));
-   connect(sendwidget, SIGNAL(s_setfontsize(double)), 
-           this, SLOT(r_setfontsize(double)));
+   connect(sendwidget, SIGNAL(s_setfontsize(int)), 
+           this, SLOT(r_setfontsize(int)));
    connect(sendwidget, SIGNAL(s_setpenwidth(double)), 
            this, SLOT(r_setpenwidth(double)));
    connect(sendwidget, SIGNAL(s_setcolor(int,int,int)), 
@@ -286,8 +295,6 @@ ReceiveWidget::ReceiveWidget(QWidget *parent) : QWidget(parent) {
            this, SLOT(r_save(QString)));           
    connect(sendwidget, SIGNAL(s_showframe()), this, SLOT(r_showframe()));
    connect(sendwidget, SIGNAL(s_clear()), this, SLOT(r_clear()));
-   
-   ready = true;
 }
 
 void ReceiveWidget::paintEvent(QPaintEvent *e) {
@@ -373,7 +380,7 @@ void ReceiveWidget::r_filled_polygon(QList<double> x, QList<double> y) {
    if (!animation_mode) this->repaint();
 }
 
-void ReceiveWidget::r_setfontsize(double w) {
+void ReceiveWidget::r_setfontsize(int w) {
    this->fontsize = w;
    pending--;
 }
@@ -391,7 +398,7 @@ void ReceiveWidget::r_setcolor(int r, int g, int b) {
 }
 
 void ReceiveWidget::r_settransparency(double t) {
-   this->a = 255*(1-t);
+   this->a = (int)(255*(1-t));
    pending--;
 }
 
@@ -425,10 +432,10 @@ void ReceiveWidget::r_setwindowsize(int width, int height) {
 void ReceiveWidget::r_text(QString text, double x, double y) {
    QPainter painter(pm);
    QFont f = painter.font();
-   f.setPointSize(fontsize);
+   f.setPointSize((int)fontsize);
    painter.setFont(f);
    //cout << text.toUtf8().constData() << endl;
-   QRect rect(affx(x)-width/2, affy(y)-height/2, width, height);
+   QRectF rect(affx(x)-width/2, affy(y)-height/2, width, height);
    liner(painter).drawText(rect, Qt::AlignCenter, text);
    pending--;
    if (!animation_mode) this->repaint();
@@ -437,7 +444,7 @@ void ReceiveWidget::r_text(QString text, double x, double y) {
 void ReceiveWidget::r_image(QString filename, double x, double y) {
    QPainter painter(pm);
    QImage img(filename);
-   painter.drawImage(affx(x)-img.width()/2, affy(y)-img.height()/2, img);
+   painter.drawImage(QPointF(affx(x)-img.width()/2, affy(y)-img.height()/2), img);
    pending--;
    if (!animation_mode) this->repaint();
 }
@@ -484,29 +491,31 @@ void ReceiveWidget::r_showframe() {
 
 // end of ReceiveWidget member functions
 
-// infrastructure
-void _start() {   
-   int argc = 0;
-   char* argv[0];
+}
+// escape namespace to forward declare
+int _main(int, char**); // user's main will be transformed to this
+namespace draw {
+
+class StudentThread : public QThread {
+   Q_OBJECT
+   int argc;
+   char** argv;
+   public: StudentThread(int argc, char** argv) 
+   { this->argc = argc; this->argv = argv; }
+   protected: void run() 
+   { retcode = ::_main(argc, argv); }
+};
+
+int actual_main(int argc, char** argv) {
    QApplication app(argc, argv);
    qRegisterMetaType<QList<double> >("QList<double>");
    app.setApplicationName("draw");
    sendwidget = new SendWidget;
    receivewidget = new ReceiveWidget;
-   app.exec();
-   quick_exit(0); // if user closes window, terminate main thread
-}
-
-int _spawn() {
-   gui_thread = std::thread(_start);
-   while (!ready) yield(); // wait for initialization to finish
-   return 0;
-}
-int _dont_care_just_call_this_plz = _spawn();
-
-void _done(int r) {
-   gui_thread.join();
-   quick_exit(r);
+   StudentThread* st = new StudentThread(argc, argv);
+   st->start(); // start student main() in its own thread
+   app.exec(); // wait until user closes window
+   return retcode; // pass result of user's main, if it finished
 }
 
 } // end of 'draw' namespace

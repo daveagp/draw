@@ -1,14 +1,15 @@
 # to add audio:
 # 1. you need to install some packages. on my machine this worked:
-#  sudo apt-get install phonon-backend-gstreamer libphonon-dev
+#    sudo apt-get install phonon-backend-gstreamer libphonon-dev
 # 2. run 'make fresh audio=y' and use audio=y every time you run make
 # 3. see if ./earth works
 # 4. if you get error about .mid files, more packages needed. I used:
-#  sudo apt-get install ubuntu-restricted-extras vlc-plugin-fluidsynth
+#    sudo apt-get install ubuntu-restricted-extras vlc-plugin-fluidsynth
 #    (use tab and space to navigate the weird dialogs)
+#    or just don't use .mid files
 
 EXAMPLES = example bounce earth polygon sierpinski htree nestedcircles
-CXX = g++ # compile lib with g++; clang++ has issues with thread, chrono
+CXX = clang++
 MOCQT4 = moc-qt4
 
 all: draw.o $(EXAMPLES)
@@ -18,10 +19,15 @@ clean:
 	
 fresh: clean all
 
+FLAGS = -g -lQtGui -lQtCore
 WARN = -Wall -Wno-return-type -Wno-write-strings
-INCL = -I/usr/include/qt4/QtGui -I/usr/include/qt4
-OFLAGS = $(INCL) $(WARN) -g -Wall -std=c++11 -fmax-errors=1
-FLAGS = $(WARN) -g -lQtGui -lQtCore
+INCL = -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4
+ifdef cs103compile
+CXX = ~/.compile.py
+WARN += -ferror-limit=1 -Werror -Wno-shadow -Wno-unreachable-code
+endif
+OFLAGS = $(INCL) $(WARN) -g -Wall
+FLAGS += $(WARN) 
 ifdef audio
 INCL += -I/usr/include/phonon
 OFLAGS += -DDRAW_UNMUTE

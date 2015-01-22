@@ -32,7 +32,7 @@ namespace draw {
 // other settings
    void setpenwidth(double w); // default: 1
    void settransparency(double t); // 1 transparent, 0 opaque. default: 0
-   void setfontsize(double s); // default: 12 pt
+   void setfontsize(int s); // default: 12 pt
    void setwindowsize(int width, int height); // default: 512x512 pixels
 // show current frame, pause this many milliseconds, 
 // & turn on animation mode: nothing will display until next call to show
@@ -88,9 +88,8 @@ namespace draw {
 #define _DRAW_NO_XFORM_MAIN
 
 // warning: here be dragons
-namespace draw {void _done(int);}
-int _main(int, char**); // user's main will be transformed to this
-int main(int x, char** y) {int r = _main(x, y); draw::_done(r); return r;}
+namespace draw {int actual_main(int, char**);}
+int main(int x, char** y) {return draw::actual_main(x, y);}
 
 // transform main() or main(int, char**) to _main(int, char**)
 #define main(...) vamain(__VA_ARGS__)
