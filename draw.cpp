@@ -202,13 +202,21 @@ void setwindowsize(int width, int height)
 { send()->setwindowsize(width, height); }
 void image(char* filename, double x, double y)
 { send()->image(QString(filename), x, y); }
+void image(const char* filename, double x, double y)
+{ image(const_cast<char*>(filename), x, y); }
 void text(char* filename, double x, double y)
+{ send()->text(QString(filename), x, y); }
+void text(const char* filename, double x, double y)
 { send()->text(QString(filename), x, y); }
 void play(char* filename)
 { send()->play(filename); }
+void play(const char* filename)
+{ play(const_cast<char*>(filename)); }
 bool save(char* filename) // synchronous, wait for result
 { send()->save(filename); while (save_result == -1) QThread::yieldCurrentThread();
   bool result = (save_result==1); save_result = -1; return result; }
+bool save(const char* filename) // synchronous, wait for result
+{ return save(const_cast<char*>(filename)); }
 void showframe() 
 { send()->showframe(); }
 void clear() 
@@ -390,10 +398,10 @@ void ReceiveWidget::r_setpenwidth(double w) {
    pending--;
 }
 
-void ReceiveWidget::r_setcolor(int r, int g, int b) {
-   this->r = r;
-   this->g = g;
-   this->b = b;
+void ReceiveWidget::r_setcolor(int rnew, int gnew, int bnew) {
+   this->r = rnew;
+   this->g = gnew;
+   this->b = bnew;
    pending--;
 }
 
@@ -414,9 +422,9 @@ void ReceiveWidget::r_setyrange(double min, double max) {
    pending--;
 }
 
-void ReceiveWidget::r_setwindowsize(int width, int height) {
-   this->width = width;
-   this->height = height;
+void ReceiveWidget::r_setwindowsize(int newwidth, int newheight) {
+   this->width = newwidth;
+   this->height = newheight;
    this->setFixedSize(width, height);
    delete pm;
    pm = new QPixmap(width, height);
@@ -500,8 +508,8 @@ class StudentThread : public QThread {
    Q_OBJECT
    int argc;
    char** argv;
-   public: StudentThread(int argc, char** argv) 
-   { this->argc = argc; this->argv = argv; }
+   public: StudentThread(int argc0, char** argv0) 
+   { this->argc = argc0; this->argv = argv0; }
    protected: void run() 
    { retcode = ::_main(argc, argv); }
 };

@@ -9,7 +9,7 @@
 #    or just don't use .mid files
 
 EXAMPLES = example bounce earth polygon sierpinski htree nestedcircles
-CXX = clang++
+CXX = clang++ # or compile or g++
 MOCQT4 = moc-qt4
 
 all: draw.o $(EXAMPLES)
@@ -19,18 +19,14 @@ clean:
 	
 fresh: clean all
 
-FLAGS = -g -lQtGui -lQtCore
-WARN = -Wall -Wno-return-type -Wno-write-strings
+FLAGS = -g -Wall -lQtGui -lQtCore
+WARN = -Wall -Wno-return-type
 INCL = -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4
-ifdef cs103compile
-CXX = ~/.compile.py
-WARN += -ferror-limit=1 -Werror -Wno-shadow -Wno-unreachable-code
-endif
-OFLAGS = $(INCL) $(WARN) -g -Wall
-FLAGS += $(WARN) 
+OFLAGS = $(INCL) $(WARN) -g -Wall -Wno-unreachable-code
+
 ifdef audio
 INCL += -I/usr/include/phonon
-OFLAGS += -DDRAW_UNMUTE
+OFLAGS +=  -DDRAW_UNMUTE
 FLAGS += -lphonon
 endif
 
@@ -38,7 +34,7 @@ draw.o: draw.cpp draw.h
 	$(MOCQT4) draw.cpp | $(CXX) $(OFLAGS) -c -x c++ - -include draw.cpp -o draw.o
 	
 %: %.cpp draw.o draw.h
-	$(CXX) $@.cpp draw.o $(FLAGS) -o $@
+	$(CXX) $@.cpp draw.o $(FLAGS) $(WARN) -o $@
 	
 # prepare a zip that people not using git can use
 zip:

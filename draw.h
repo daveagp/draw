@@ -27,8 +27,7 @@ namespace draw {
    void setrange(double min, double max); // sets both ranges
 // set color. default is black
    void setcolor(int r, int g, int b);
-   void setcolor(int const color[3]); // to work with predefined colors
-   void setcolor(int color[3]);
+   void setcolor(int color[3]); // to work with predefined colors
 // other settings
    void setpenwidth(double w); // default: 1
    void settransparency(double t); // 1 transparent, 0 opaque. default: 0
@@ -66,6 +65,14 @@ namespace draw {
    const int CHARTREUSE[3] = {127, 255, 0};
    const int VIOLET[3] = {127, 0, 255};
    const int AZURE[3] = {0, 127, 255};
+
+   // const-friendly versions
+   void setcolor(const int color[3]); 
+   void image(const char filename[], double, double);
+   void text(const char text[], double, double);
+   bool save(const char filename[]);
+   void play(const char filename[]);
+
 }
 
 #endif
