@@ -17,4 +17,5 @@ int main() {
    draw::line(0.8, 0.2, 0.9, 0.1);
    
    draw::save("media/coords.png");
+   return 0;
 }

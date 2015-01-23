@@ -7,4 +7,5 @@ int main() {
    draw::filled_circle(0.5, 0.5, 0.3); // smaller circle
    draw::setcolor(draw::RED);          // predefined alias for red
    draw::filled_circle(0.5, 0.5, 0.1); // smaller circle
+   return 0;
 }

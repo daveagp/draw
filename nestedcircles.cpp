@@ -35,5 +35,6 @@ int main(int argc, char* argv[]) {
    int n = 5;
    if (argc > 1) n = atoi(argv[1]);
    ncirc(n, .5, .5, .5);
+   return 0;
 }
 

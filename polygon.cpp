@@ -18,4 +18,5 @@ int main()
    draw::setcolor(draw::BLUE);
    draw::text("wow", 0.5, 0.8);
    draw::save("polygon.png");
+   return 0;
 }

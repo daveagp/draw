@@ -8,9 +8,11 @@
 #    (use tab and space to navigate the weird dialogs)
 #    or just don't use .mid files
 
-EXAMPLES = example bounce earth polygon sierpinski htree nestedcircles
-CXX = clang++ # or compile or g++
+CXX = clang++
 MOCQT4 = moc-qt4
+# tries later to check if it's the course VM, and changes CXX to 'compile'
+
+EXAMPLES = example bounce earth polygon sierpinski htree nestedcircles
 
 all: draw.o $(EXAMPLES)
 
@@ -19,22 +21,32 @@ clean:
 	
 fresh: clean all
 
-FLAGS = -g -Wall -lQtGui -lQtCore
-WARN = -Wall -Wno-return-type
-INCL = -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4
-OFLAGS = $(INCL) $(WARN) -g -Wall -Wno-unreachable-code
+INCL = -I/usr/include/qt4 -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui
+OFLAGS = $(INCL) -Wall -Wno-unreachable-code -Wno-return-type
+FLAGS = -g -Wall -lQtCore -lQtGui
 
 ifdef audio
-INCL += -I/usr/include/phonon
-OFLAGS +=  -DDRAW_UNMUTE
+OFLAGS += -DDRAW_UNMUTE -I/usr/include/phonon
 FLAGS += -lphonon
 endif
 
+# this is for CS 103 at USC specifically.
+# bash doesn't expand aliases. patch student machine. prefer 'compile'.
+ifeq ("$(wildcard /bin/compile)","")
+ifneq ("$(wildcard ~/.compile.py)","")
+PATCH = sudo cp ~/.compile.py /bin/compile; sudo chmod u+x /bin/compile
+CXX = compile
+endif
+else
+CXX = compile
+endif
+
 draw.o: draw.cpp draw.h
+	$(PATCH)
 	$(MOCQT4) draw.cpp | $(CXX) $(OFLAGS) -c -x c++ - -include draw.cpp -o draw.o
-	
+
 %: %.cpp draw.o draw.h
-	$(CXX) $@.cpp draw.o $(FLAGS) $(WARN) -o $@
+	$(CXX) $@.cpp draw.o $(FLAGS) -o $@
 	
 # prepare a zip that people not using git can use
 zip:
