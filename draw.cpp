@@ -23,7 +23,7 @@ class ReceiveWidget; // forward decls
 const int MAX_QUEUE_SIZE = 100;
 QAtomicPointer<ReceiveWidget> receivewidget; // singleton
 QAtomicInt retcode(0); // return code from main
-QAtomicInt save_result(-1); // 0 ok, 1 error
+QAtomicInt save_result(-1); // 1 ok, 0 error, -1 pending
 
 // used only by user thread
 timespec next_frame_mintime;
