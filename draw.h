@@ -9,25 +9,25 @@ namespace draw {
    void line(double x0, double y0, double x1, double y1);
    void square(double cx, double cy, double side_length);
    void rectangle(double x0, double y0, double x1, double y1);
-   void polygon(int num_points, double x[], double y[]);
+   void polygon(int num_points, const double x[], const double y[]);
    void circle(double cx, double cy, double r);
    void ellipse(double cx, double cy, double rx, double ry);
 // drawing filled shapes
    void filled_square(double cx, double cy, double side_length);
    void filled_rectangle(double x0, double y0, double x1, double y1);
-   void filled_polygon(int num_points, double x[], double y[]);
+   void filled_polygon(int num_points, const double x[], const double y[]);
    void filled_circle(double cx, double cy, double r);
    void filled_ellipse(double cx, double cy, double rx, double ry);
 // draw image or text centered at a given position
-   void image(char filename[], double, double);
-   void text(char text[], double, double);
+   void image(const char filename[], double, double);
+   void text(const char text[], double, double);
 // set coordinates for boundaries of screen. default is from 0 to 1
    void setxrange(double xmin, double ymax);
    void setyrange(double ymin, double ymax);
    void setrange(double min, double max); // sets both ranges
 // set color. default is black
    void setcolor(int r, int g, int b);
-   void setcolor(int color[3]); // to work with predefined colors
+   void setcolor(const int color[3]); // to work with predefined colors
 // other settings
    void setpenwidth(double w); // default: 1
    void settransparency(double t); // 1 transparent, 0 opaque. default: 0
@@ -38,8 +38,8 @@ namespace draw {
    void show(int milliseconds);
 // misc
    void clear(); // fill with white
-   bool save(char filename[]); // save image to file. true = ok, false = error
-   void play(char filename[]); // play a sound file
+   bool save(const char filename[]); // save image to file. true = ok, false = error
+   void play(const char filename[]); // play a sound file
 
    // some pre-defined colors
    const int RED[3] = {255, 0, 0};
@@ -66,13 +66,6 @@ namespace draw {
    const int VIOLET[3] = {127, 0, 255};
    const int AZURE[3] = {0, 127, 255};
 
-   // const-friendly versions
-   void setcolor(const int color[3]); 
-   void image(const char filename[], double, double);
-   void text(const char text[], double, double);
-   bool save(const char filename[]);
-   void play(const char filename[]);
-
 }
 
 #endif
@@ -82,25 +75,14 @@ namespace draw {
 
 
 
-/* implementation details follow, not really intended for the user.
-
-   the remainder of the file ensures that the window stays open after
-   the end of the user's main(). 
-   
-   to disable it, add #define _DRAW_NO_XFORM_MAIN to your own code before 
-   including this file. Call draw::_done() at end to wait for window close.
+/* hacky implementation details below.
+   rename student main and normalize signature.
+   draw will start on its own and spawn a thread to call it.
+   draw will keep window open even after student main finishes.
 */
-
-#ifndef _DRAW_NO_XFORM_MAIN
-#define _DRAW_NO_XFORM_MAIN
-
-// warning: here be dragons
-namespace draw {int actual_main(int, char**);}
-int main(int x, char** y) {return draw::actual_main(x, y);}
 
 // transform main() or main(int, char**) to _main(int, char**)
 #define main(...) vamain(__VA_ARGS__)
 #define vamain(...) vamainhelp(,##__VA_ARGS__, int, char**)
 #define vamainhelp(blank, first, second, ...) _main(first, second)
-
-#endif 
+ 
