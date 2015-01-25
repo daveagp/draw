@@ -17,14 +17,13 @@ namespace draw {
 
 using std::cout; using std::endl; using std::cerr;
 
-class ReceiveWidget; // forward decl
 QAtomicInt pending(0); // how many calls are queued?
 QAtomicInt save_result(-1); // synchronous call. 1 ok, 0 error, -1 pending
 
 /************************************* 1 ****************************
              Qt Widget that receives calls and does drawing              */
 
-class ReceiveWidget : public QWidget {
+class DrawWidget : public QWidget {
 Q_OBJECT  
 
 private:      
@@ -38,7 +37,7 @@ private:
    bool animation_mode;
  
 public:
-ReceiveWidget(QWidget *parent = 0) : QWidget(parent) { 
+DrawWidget(QWidget *parent = 0) : QWidget(parent) { 
    this->width = this->height = 512;
    r = g = b = 0;
    a = 255;
@@ -251,12 +250,12 @@ void showframe() {
 }
 };
 
-// end of ReceiveWidget members
+// end of DrawWidget members
 
 /************************************* part 2 ****************************
                  linkage between Qt Widget and student code              */
 
-QAtomicPointer<ReceiveWidget> receivewidget; // to invoke
+QAtomicPointer<DrawWidget> drawwidget; // to invoke
 QAtomicInt retcode(0); // return code from main
 
 int drawmain(int argc, char** argv);
@@ -290,7 +289,7 @@ int drawmain(int argc, char** argv) {
    QApplication app(argc, argv);
    qRegisterMetaType<QList<double> >("QList<double>");
    app.setApplicationName("draw");
-   draw::receivewidget = new ReceiveWidget;
+   draw::drawwidget = new DrawWidget;
    StudentThread* st = new StudentThread(argc, argv);
    st->start(); // start student main() in its own thread
    app.exec(); // wait until student closes window
@@ -309,15 +308,15 @@ void start_call() {
    pending = pending + 1;
 }
 
-// CALL(func, type1, arg1, func2, arg2): pseudo-signal to ReceiveWidget
+// CALL(func, type1, arg1, func2, arg2): pseudo-signal to DrawWidget
 #define CALL(meth,...) \
  start_call(); \
  QByteArray normalizedSignature = \
  QMetaObject::normalizedSignature( #meth "(" ARGS(S, ##__VA_ARGS__) ")" );\
- const QMetaObject* rmo = (*receivewidget).metaObject(); \
+ const QMetaObject* rmo = (*drawwidget).metaObject(); \
  int methodIndex = rmo->indexOfMethod(normalizedSignature); \
  QMetaMethod method = rmo->method(methodIndex); \
- method.invoke(receivewidget, Qt::QueuedConnection ARGS(Q, ##__VA_ARGS__));
+ method.invoke(drawwidget, Qt::QueuedConnection ARGS(Q, ##__VA_ARGS__));
 
 // e.g. ARGS(S, int, bar, double, x) => "int, double"
 // e.g. ARGS(Q, int, bar, double, x) => , Q_ARG(int, bar), Q_ARG(double, x)
