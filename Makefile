@@ -34,7 +34,7 @@ endif
 # bash doesn't expand aliases. patch student machine. prefer 'compile'.
 ifeq ("$(wildcard /bin/compile)","")
 ifneq ("$(wildcard ~/.compile.py)","")
-PATCH = sudo cp ~/.compile.py /bin/compile; sudo chmod u+x /bin/compile
+PATCH = sudo cp ~/.compile.py /bin/compile; sudo chmod a+x /bin/compile
 CXX = compile
 endif
 else
