@@ -11,7 +11,6 @@
 #ifdef DRAW_UNMUTE
 #include <phonon/phonon>
 #endif
-
  
 namespace draw {
 
@@ -35,6 +34,11 @@ private:
    int fontsize;
    bool y_increases_up;
    bool animation_mode;
+   
+protected:
+void paintEvent(QPaintEvent *) {
+   QPainter(this).drawPixmap(0, 0, animation_mode ? (*prepared_frame) : (*pm));
+}
  
 public:
 DrawWidget(QWidget *parent = 0) : QWidget(parent) { 
@@ -51,19 +55,13 @@ DrawWidget(QWidget *parent = 0) : QWidget(parent) {
    y_increases_up = true;
    animation_mode = false;
    
-   this->setxrange(0, 1);
-   this->setyrange(0, 1);
-
    pm = new QPixmap(width, height);
    (*pm).fill(); // clear   
+
+   this->setxrange(0, 1);
+   this->setyrange(0, 1);
 }
 
-protected:
-void paintEvent(QPaintEvent *) {
-   QPainter(this).drawPixmap(0, 0, *pm);
-}
-
-private:
 double affx(double x0) {
    return (x0-xmin)/(xmax-xmin)*width;
 }
@@ -94,88 +92,96 @@ QPainter& liner(QPainter& result) {
    return result;
 }
 
-public slots:
-void point(double x, double y) {
+QPainter& styler(bool filled, QPainter& result) {
+   return filled ? filler(result) : liner(result);
+}
+
+void done_visible_call() {
+   pending = pending - 1;
+   this->repaint();
+}
+
+void done_invisible_call() {
+   pending = pending - 1;
+}
+
+Q_INVOKABLE void point(double x, double y) {
    QPainter painter(pm);
    liner(painter).drawPoint(QPointF(affx(x), affy(y)));
-   pending = pending - 1;
-   if (!animation_mode) this->repaint();
+   done_visible_call();
 }
 
-void line(double x0, double y0, double x1, double y1) {
+Q_INVOKABLE void line(double x0, double y0, double x1, double y1) {
    QPainter painter(pm);
    liner(painter).drawLine(QPointF(affx(x0), affy(y0)), QPointF(affx(x1), affy(y1)));
-   pending = pending - 1;
-   if (!animation_mode) this->repaint();
+   done_visible_call();
 }
 
-void ellipse(double x, double y, double xr, double yr) {
+void either_ellipse(bool filled, double x, double y, double xr, double yr) {
    QPainter painter(pm);
-   liner(painter).drawEllipse(QPointF(affx(x), affy(y)), linx(xr), liny(yr));
-   pending = pending - 1;
-   if (!animation_mode) this->repaint();
+   styler(filled, painter).drawEllipse(QPointF(affx(x), affy(y)), linx(xr), liny(yr));
+   done_visible_call();
 }
 
-void filled_ellipse(double x, double y, double xr, double yr) {
-   QPainter painter(pm);
-   filler(painter).drawEllipse(QPointF(affx(x), affy(y)), linx(xr), liny(yr));
-   pending = pending - 1;
-   if (!animation_mode) this->repaint();
+Q_INVOKABLE void ellipse(double x, double y, double xr, double yr) {
+   either_ellipse(false, x, y, xr, yr);
 }
 
-void polygon(QList<double> x, QList<double> y) {
+Q_INVOKABLE void filled_ellipse(double x, double y, double xr, double yr) {
+   either_ellipse(true, x, y, xr, yr);
+}
+
+void either_polygon(bool filled, QList<double> x, QList<double> y) {
    QPolygonF p;
    for (int i=0; i<x.size(); i++) p << QPointF(affx(x[i]), affy(y[i]));
    QPainter painter(pm);
-   liner(painter).drawPolygon(p);
-   pending = pending - 1;
-   if (!animation_mode) this->repaint();
+   styler(filled, painter).drawPolygon(p);
+   done_visible_call();
 }
 
-void filled_polygon(QList<double> x, QList<double> y) {
-   QPolygonF p;
-   for (int i=0; i<x.size(); i++) p << QPointF(affx(x[i]), affy(y[i]));
-   QPainter painter(pm);
-   filler(painter).drawPolygon(p);
-   pending = pending - 1;
-   if (!animation_mode) this->repaint();
+Q_INVOKABLE void polygon(QList<double> x, QList<double> y) {
+   either_polygon(false, x, y);
 }
 
-void setfontsize(int w) {
+Q_INVOKABLE void filled_polygon(QList<double> x, QList<double> y) {
+   either_polygon(true, x, y);
+}
+
+Q_INVOKABLE void setfontsize(int w) {
    this->fontsize = w;
-   pending = pending - 1;
+   done_invisible_call();
 }
 
-void setpenwidth(double w) {
+Q_INVOKABLE void setpenwidth(double w) {
    this->penwidth = w;
-   pending = pending - 1;
+   done_invisible_call();
 }
 
-void setcolor(int rnew, int gnew, int bnew) {
+Q_INVOKABLE void setcolor(int rnew, int gnew, int bnew) {
    this->r = rnew;
    this->g = gnew;
    this->b = bnew;
-   pending = pending - 1;
+   done_invisible_call();
 }
 
-void settransparency(double t) {
+Q_INVOKABLE void settransparency(double t) {
    this->a = (int)(255*(1-t));
-   pending = pending - 1;
+   done_invisible_call();
 }
 
-void setxrange(double min, double max) {
+Q_INVOKABLE void setxrange(double min, double max) {
    xmin = min;
    xmax = max;
-   pending = pending - 1;
+   done_invisible_call();
 }
 
-void setyrange(double min, double max) {
+Q_INVOKABLE void setyrange(double min, double max) {
    if (y_increases_up) {ymin = max; ymax = min;}
    else {ymax = min; ymin = max;}
-   pending = pending - 1;
+   done_invisible_call();
 }
 
-void setwindowsize(int newwidth, int newheight) {
+Q_INVOKABLE void setwindowsize(int newwidth, int newheight) {
    this->width = newwidth;
    this->height = newheight;
    this->setFixedSize(width, height);
@@ -187,34 +193,32 @@ void setwindowsize(int newwidth, int newheight) {
       prepared_frame = new QPixmap(width, height);
       (*prepared_frame).fill();
    }
-   pending = pending - 1;
+   done_visible_call();
 }
 
-void text(QString text, double x, double y) {
+Q_INVOKABLE void text(QString text, double x, double y) {
    QPainter painter(pm);
    QFont f = painter.font();
    f.setPointSize((int)fontsize);
    painter.setFont(f);
    QRectF rect(affx(x)-width/2, affy(y)-height/2, width, height);
    liner(painter).drawText(rect, Qt::AlignCenter, text);
-   pending = pending - 1;
-   if (!animation_mode) this->repaint();
+   done_visible_call();
 }
 
-void image(QString filename, double x, double y) {
+Q_INVOKABLE void image(QString filename, double x, double y) {
    QPainter painter(pm);
    QImage img(filename);
    painter.drawImage(QPointF(affx(x)-img.width()/2, affy(y)-img.height()/2), img);
-   pending = pending - 1;
-   if (!animation_mode) this->repaint();
+   done_visible_call();
 }
 
-void save(QString filename) {
+Q_INVOKABLE void save(QString filename) {
    save_result = pm->save(filename) ? 1 : 0;
-   pending = pending - 1;
+   done_invisible_call();
 }
 
-void play(QString filename) {
+Q_INVOKABLE void play(QString filename) {
 #ifdef DRAW_UNMUTE
    freopen("/dev/null", "w", stderr); // hide phonon's many status messages
 
@@ -227,30 +231,27 @@ void play(QString filename) {
    QSound sound(filename);
    sound.play();*/
 #endif
-   pending = pending - 1;
+   done_invisible_call();
 }
 
-void clear() {
+Q_INVOKABLE void clear() {
    this->pm->fill();
-   pending = pending - 1;
-   if (!animation_mode) this->repaint();
+   done_visible_call();
 }
 
-void showframe() {   
+Q_INVOKABLE void showframe() {  
    if (!animation_mode) {
-      animation_mode = true;
       prepared_frame = new QPixmap(*pm);
+      animation_mode = true;
    }
    else {
+      prepared_frame = new QPixmap(*pm);
       QPainter p(prepared_frame);
       p.drawPixmap(0, 0, *pm);
    }
-   this->repaint();
-   pending = pending - 1;
+   done_visible_call();
 }
-};
-
-// end of DrawWidget members
+}; // end of DrawWidget
 
 /************************************* part 2 ****************************
                  linkage between Qt Widget and student code              */
@@ -273,6 +274,7 @@ int main(int argc, char** argv) {
    return draw::drawmain(argc, argv);
 }
 
+// re-enter namespace
 namespace draw {
 
 class StudentThread : public QThread {
@@ -289,13 +291,12 @@ int drawmain(int argc, char** argv) {
    QApplication app(argc, argv);
    qRegisterMetaType<QList<double> >("QList<double>");
    app.setApplicationName("draw");
-   draw::drawwidget = new DrawWidget;
+   drawwidget = new DrawWidget;
    StudentThread* st = new StudentThread(argc, argv);
    st->start(); // start student main() in its own thread
    app.exec(); // wait until student closes window
    return retcode; // pass result of student's main, if it finished
 }
-
 
 /************************************* part 3 ****************************
       declaration of student API, code that happens in their thread      */
@@ -409,11 +410,7 @@ void filled_rectangle(double x0, double y0, double x1, double y1) {
    filled_polygon(4, xc, yc); 
 }
 
-void setcolor(int color[3]) { 
-   setcolor(color[0], color[1], color[2]); 
-}
-
-void setcolor(int const color[3]) {
+void setcolor(const int color[3]) {
    setcolor(color[0], color[1], color[2]);
 }
 
