@@ -18,7 +18,7 @@ all: draw.o $(EXAMPLES)
 
 clean:
 	rm -f draw.o polygon.png bull $(EXAMPLES)
-	
+
 fresh: clean all
 
 INCL = -I/usr/include/qt4 -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui
@@ -28,6 +28,10 @@ FLAGS = -g -Wall -lQtCore -lQtGui
 ifdef audio
 OFLAGS += -DDRAW_UNMUTE -I/usr/include/phonon
 FLAGS += -lphonon
+endif
+
+ifdef stub
+FLAGS =
 endif
 
 # this is for CS 103 at USC specifically.
@@ -47,8 +51,11 @@ draw.o: draw.cpp draw.h
 
 %: %.cpp draw.o draw.h
 	$(CXX) $@.cpp draw.o $(FLAGS) -o $@
-	
+
 # prepare a zip that people not using git can use
 zip:
 	rm -f draw.zip
 	zip -r draw.zip *.cpp draw.h Makefile media README
+
+stub:
+	$(CXX) -c drawstub.cpp -o draw.o
