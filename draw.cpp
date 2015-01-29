@@ -19,7 +19,7 @@ using std::cout; using std::endl; using std::cerr;
 QAtomicInt pending(0); // how many calls are queued?
 QAtomicInt save_result(-1); // synchronous call. 1 ok, 0 error, -1 pending
 
-/************************************* 1 ****************************
+/************************************* Part 1 ****************************
              Qt Widget that receives calls and does drawing              */
 
 class DrawWidget : public QWidget {
@@ -98,7 +98,7 @@ QPainter& styler(bool filled, QPainter& result) {
 
 void done_visible_call() {
    pending = pending - 1;
-   this->repaint();
+   if (!animation_mode) this->repaint();
 }
 
 void done_invisible_call() {
@@ -248,6 +248,7 @@ Q_INVOKABLE void showframe() {
       prepared_frame = new QPixmap(*pm);
       QPainter p(prepared_frame);
       p.drawPixmap(0, 0, *pm);
+      this->repaint();
    }
    done_visible_call();
 }
