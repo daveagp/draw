@@ -245,6 +245,7 @@ Q_INVOKABLE void showframe() {
       animation_mode = true;
    }
    else {
+      delete prepared_frame;
       prepared_frame = new QPixmap(*pm);
       QPainter p(prepared_frame);
       p.drawPixmap(0, 0, *pm);
