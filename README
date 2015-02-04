@@ -1,12 +1,29 @@
-This is a user-friendly C++ drawing library.
+This is a user-friendly C++ drawing and animation library.
 It requires that you have Qt4 installed, since that is its backend.
 
+DOCUMENTATION:
+http://bits.usc.edu/cs103/draw/
+
+INSTALLATION:
 Once downloaded, run "make draw.o" to create the library. 
 Then, use it with draw.h to create drawing programs. There are several
 examples included in this repository ("make all" or "make bull" etc).
 
-For documentation, visit
-http://bits.usc.edu/cs103/draw/
+NOTE:
+Right now we've only got it to work in Linux.
+If you love Qt on OSX or Windows, let us know if you get it to work.
 
-This library is inspired by StdDraw.java by Bob Sedgewick & Kevin Wayne:
+SAMPLE ASSIGNMENT: 
+http://bits.usc.edu/cs103/coursework/nbody/
+This is a translation to C++ of an assignment by Bob Sedgewick & Kevin 
+Wayne. You simulate the motion of the planets and animate them. It uses
+arrays and input/output.
+
+THANKS:
+This library is inspired by StdDraw.java by Sedgewick & Wayne.
 http://introcs.cs.princeton.edu/java/15inout/
+
+Thanks to Won Chun and Tim Benke for helping reduce the Qt boilerplate.
+
+CONTACT:
+Dave Pritchard, daveagp@gmail.com
