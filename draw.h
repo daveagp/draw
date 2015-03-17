@@ -27,7 +27,6 @@ namespace draw {
    void setrange(double min, double max); // sets both ranges
 // set color. default is black
    void setcolor(int r, int g, int b);
-   void setcolor(const int color[3]); // to work with predefined colors
 // other settings
    void setpenwidth(double w); // default: 1
    void settransparency(double t); // 1 transparent, 0 opaque. default: 0
@@ -41,31 +40,41 @@ namespace draw {
    bool save(const char filename[]); // save image to file. true = ok, false = error
    void play(const char filename[]); // play a sound file
 
-   // some pre-defined colors
-   const int RED[3] = {255, 0, 0};
-   const int BLUE[3] = {0, 0, 255};
-   const int LIME[3] = {0, 255, 0};
-   const int GREEN[3] = {0, 127, 0};
-   const int YELLOW[3] = {255, 255, 0};
-   const int CYAN[3] = {0, 255, 255};
-   const int MAGENTA[3] = {255, 0, 255};
-   const int PINK[3] = {255, 127, 255};
-   const int WHITE[3] = {255, 255, 255};
-   const int BLACK[3] = {0, 0, 0};
-   const int GRAY[3] = {127, 127, 127};
-   const int ORANGE[3] = {255, 127, 0};
-   const int PURPLE[3] = {127, 0, 127};
-   const int TEAL[3] = {0, 127, 127};
-   const int OLIVE[3] = {127, 127, 0};
-   const int MAROON[3] = {127, 0, 0};
-   const int NAVY[3] = {0, 0, 127};
-   const int MINT[3] = {127, 255, 127};
-   const int CORAL[3] = {255, 127, 127};
-   const int ROSE[3] = {255, 0, 127};
-   const int CHARTREUSE[3] = {127, 255, 0};
-   const int VIOLET[3] = {127, 0, 255};
-   const int AZURE[3] = {0, 127, 255};
+   // new type for pre-defined colors
+   struct Color {
+      int red;
+      int green;
+      int blue;
+   };
+   
+   // let setcolor work with pre-defined colors
+   void setcolor(draw::Color color); 
 
+   // some pre-defined colors
+   const Color RED = {255, 0, 0};
+   const Color BLUE = {0, 0, 255};
+   const Color LIME = {0, 255, 0};
+   const Color GREEN = {0, 127, 0};
+   const Color YELLOW = {255, 255, 0};
+   const Color CYAN = {0, 255, 255};
+   const Color MAGENTA = {255, 0, 255};
+   const Color PINK = {255, 127, 255};
+   const Color WHITE = {255, 255, 255};
+   const Color BLACK = {0, 0, 0};
+   const Color GRAY = {127, 127, 127};
+   const Color ORANGE = {255, 127, 0};
+   const Color PURPLE = {127, 0, 127};
+   const Color TEAL = {0, 127, 127};
+   const Color OLIVE = {127, 127, 0};
+   const Color MAROON = {127, 0, 0};
+   const Color NAVY = {0, 0, 127};
+   const Color MINT = {127, 255, 127};
+   const Color CORAL = {255, 127, 127};
+   const Color ROSE = {255, 0, 127};
+   const Color CHARTREUSE = {127, 255, 0};
+   const Color VIOLET = {127, 0, 255};
+   const Color AZURE = {0, 127, 255};
+      
 }
 
 #endif

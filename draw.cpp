@@ -410,8 +410,8 @@ void filled_rectangle(double x0, double y0, double x1, double y1) {
    filled_polygon(4, xc, yc); 
 }
 
-void setcolor(const int color[3]) {
-   setcolor(color[0], color[1], color[2]);
+void setcolor(Color color) {
+   setcolor(color.red, color.green, color.blue);
 }
 
 void setrange(double min, double max) {

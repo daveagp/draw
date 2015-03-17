@@ -5,7 +5,7 @@
 int main() {
    double cx[3] = {0, 1, 0.5};
    double cy[3] = {0, 0, sqrt(3)/2};
-   const int* color[3] = {draw::RED, draw::BLUE, draw::GREEN};
+   draw::Color color[3] = {draw::RED, draw::BLUE, draw::GREEN};
 
    double x = 0.0, y = 0.0; 
    while (true) { 
