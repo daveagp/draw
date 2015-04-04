@@ -22,7 +22,7 @@ namespace draw {
    void image(const char filename[], double, double);
    void text(const char text[], double, double);
 // set coordinates for boundaries of screen. default is from 0 to 1
-   void setxrange(double xmin, double ymax);
+   void setxrange(double xmin, double xmax);
    void setyrange(double ymin, double ymax);
    void setrange(double min, double max); // sets both ranges
 // set color. default is black
