@@ -12,7 +12,7 @@ CXX = clang++
 MOCQT4 = moc-qt4
 # tries later to check if it's the course VM, and changes CXX to 'compile'
 
-EXAMPLES = pulse bounce earth polygon sierpinski htree nestedcircles
+EXAMPLES = pulse bounce earth polygon iterpoints htree nestedcircles
 
 all: draw.o $(EXAMPLES)
 
