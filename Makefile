@@ -8,7 +8,9 @@
 #    (use tab and space to navigate the weird dialogs)
 #    or just don't use .mid files
 
-CXX = clang++
+CXX = compile
+# if needed, install from http://bits.usc.edu/cs103/compile/ or use g++ or clang++
+
 MOCQT4 = moc-qt4
 # tries later to check if it's the course VM, and changes CXX to 'compile'
 
@@ -34,16 +36,6 @@ ifdef stub
 FLAGS =
 endif
 
-# this is for CS 103 at USC specifically.
-# bash doesn't expand aliases. patch student machine. prefer 'compile'.
-ifeq ("$(wildcard /bin/compile)","")
-ifneq ("$(wildcard ~/.compile.py)","")
-PATCH = sudo cp ~/.compile.py /bin/compile; sudo chmod a+x /bin/compile
-CXX = compile
-endif
-else
-CXX = compile
-endif
 
 draw.o: draw.cpp draw.h
 	$(PATCH)
