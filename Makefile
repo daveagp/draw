@@ -38,7 +38,6 @@ endif
 
 
 draw.o: draw.cpp draw.h
-	$(PATCH)
 	$(MOCQT4) draw.cpp | $(CXX) $(OFLAGS) -c -x c++ - -include draw.cpp -o draw.o
 
 %: %.cpp draw.o draw.h
